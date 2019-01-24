@@ -1,0 +1,36 @@
+{
+  "name": "dungeoncombat",
+  "version": "1.0.0",
+  "description": "survival game",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ns4lin4s/dungeoncombat.git"
+  },
+  "keywords": [
+    "phaser3",
+    "phaser",
+    "typescript",
+    "webpack"
+  ],
+  "devDependencies": {
+    "expose-loader": "0.7.5",
+    "ts-loader": "4.4.2",
+    "typescript": "2.9.2",
+    "webpack": "4.15.0",
+    "webpack-cli": "3.0.8",
+    "webpack-dev-server": "3.1.4"
+  },
+  "dependencies": {
+    "phaser": "3.10.1"
+  },
+  "scripts": {
+    "dev": "webpack --mode development && webpack-dev-server --mode development",
+    "build": "webpack --mode production && webpack-dev-server --mode production"
+  },
+  "author": "nelson osvaldo salinas guajardo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ns4lin4s/dungeoncombat/issues"
+  },
+  "homepage": "https://github.com/ns4lin4s/dungeoncombat#readme"
+}
