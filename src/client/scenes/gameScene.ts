@@ -4,6 +4,8 @@
 
 import { Knight } from "../classes/player";
 import { Skeleton } from "../classes/skeleton";
+import { Item } from "../classes/item";
+
 
 export class GameScene extends Phaser.Scene {
 
@@ -19,6 +21,7 @@ export class GameScene extends Phaser.Scene {
 
     preload(): void {
         this.load.image("tiles", "../assets/dungeoncombat/map.png");
+        this.load.image('coin', '../assets/dungeoncombat/coin.png');
         this.load.image('bar', '../assets/dungeoncombat/preloader-bar.png');
         this.load.image('redbar', '../assets/dungeoncombat/preloader-bar2.png');
         this.load.image('border', '../assets/dungeoncombat/border.png');
@@ -98,60 +101,38 @@ export class GameScene extends Phaser.Scene {
             self.skeleton.border.body.velocity.x = 0
             self.skeleton.border.body.velocity.y = 0
         });
+    
+        this.findObjectByTypes('item',map,'objectsLayer').forEach(function(element){
+            let elementObj = new Item({
+                scene: this,
+                x: element.x,
+                y: element.y,
+                key: element.properties.asset
+            });
+        }, this);
 
-        /*
-        this.physics.add.overlap(this.knight, this.skeleton, (knight,skeleton) => {
-            
-            if(knight.body.y >= skeleton.body.y + 35)
-            {
-                this.skeleton.setDepth(0)
-                this.knight.setDepth(1)
-                this.knight.healthBar.setDepth(1)
-                this.knight.redHealthBar.setDepth(1)
-                return false
-            }
-            else
-            {
-                this.knight.setDepth(0)
-                this.knight.healthBar.setDepth(0)
-                this.knight.redHealthBar.setDepth(0)
-                this.skeleton.setDepth(1)
-            }
-                
-
-            if(skeleton.body.y <= knight.body.y - 5)
-            {
-                this.skeleton.setDepth(0)
-                this.knight.setDepth(1)
-                this.knight.healthBar.setDepth(1)
-                this.knight.redHealthBar.setDepth(1)
-                
-                this.knight.setDepth(0)
-                this.skeleton.setDepth(0)
-                this.knight.healthBar.setDepth(0)
-                this.knight.redHealthBar.setDepth(0)
-                knight.body.velocity.x = 0
-                knight.body.velocity.y = 0
-                knight.body.moves = false;
-
-                skeleton.body.velocity.x = 0
-                skeleton.body.velocity.y = 0
-                skeleton.body.immovable = true;
-                skeleton.body.moves = false;
-            }
-            
-
-            
-            //this.game. backgroundColor = '#992d2d';
-            //if((this.knight.x < this.skeleton.x + 20))
-            //{
-                
-            //}
-            
-
-        });*/
-        
         this.cameras.main.startFollow(this.knight);
+
+    }
+
+    findObjectByTypes(targetType, tilemap, layer): any {
+
+        let result = []
+        
+        if(!Array.isArray(tilemap.objects))
+          return result
+        
+        let arrayObjects = tilemap.objects[0]
+        if(arrayObjects.name === layer)
+        {
+            arrayObjects.objects.forEach(function(element){
+                if(element.properties.type == targetType)
+                    result.push(element);
+            }, this);
+        }
+        
+        return result;
+
 
     }
 
