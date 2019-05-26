@@ -17,7 +17,7 @@ export class Skeleton extends Phaser.GameObjects.Sprite {
         
         params.scene.physics.world.enable(this.border);
         params.scene.physics.world.enable(this);
-        this.body.allowGravity = false;
+        //this.body.allowGravity = false;
         params.scene.add.existing(this)
 
     }

@@ -9,15 +9,15 @@ const config: GameConfig = {
     title: "Blockade",
     url: "https://github.com/digitsensitive/phaser3-typescript",
     version: "1.0",
-    width: 256,
-    height: 224,
-    zoom: 2,
+    width: 356,
+    height: 324,
+    zoom: 1.5,
     type: Phaser.AUTO,
     parent: "game",
     scene: [BootScene,MainMenuScene,GameScene],
     input: {
       keyboard: true,
-      mouse: false,
+      mouse: true,
       touch: false,
       gamepad: false
     },
@@ -25,12 +25,12 @@ const config: GameConfig = {
       default: "arcade",
       arcade: {
         gravity: { y: 0 },
-        debug: false
+        
       }
     },
     backgroundColor: "#000000",
-    pixelArt: true,
-    antialias: false
+    //pixelArt: true,
+    //antialias: false
   };
   
   export class Game extends Phaser.Game {
