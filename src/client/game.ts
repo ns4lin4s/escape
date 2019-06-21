@@ -5,40 +5,33 @@ import { BootScene } from "./scenes/bootScene";
 import { MainMenuScene } from "./scenes/mainMenuScene";
 import { GameScene } from "./scenes/gameScene";
 
-const config: GameConfig = {
-    title: "Blockade",
-    url: "https://github.com/digitsensitive/phaser3-typescript",
-    version: "1.0",
-    width: 356,
-    height: 324,
-    zoom: 1.5,
-    type: Phaser.AUTO,
-    parent: "game",
-    scene: [BootScene,MainMenuScene,GameScene],
-    input: {
-      keyboard: true,
-      mouse: true,
-      touch: false,
-      gamepad: false
-    },
-    physics: {
-      default: "arcade",
-      arcade: {
-        gravity: { y: 0 },
-        
-      }
-    },
-    backgroundColor: "#000000",
-    //pixelArt: true,
-    //antialias: false
-  };
+const config = {
+  width: 500,
+  height: 400,
+  zoom: 1.3,
+  backgroundColor: '#2d2d2d',
+  parent: 'phaser-example',
+  pixelArt: true,
+  input: {
+    keyboard: true,
+    mouse: true,
+    touch: false,
+    gamepad: false
+  },
+  physics: {
+      
+      default: 'impact',
+      impact: { gravity: 0 }
+  },
+  scene: [BootScene,MainMenuScene,GameScene]
+};
   
-  export class Game extends Phaser.Game {
-    constructor(config: GameConfig) {
-      super(config);
-    }
+export class Game extends Phaser.Game {
+  constructor(config) {
+    super(config);
   }
-  
-  window.onload = () => {
-    var game = new Game(config);
-  };
+}
+
+window.onload = () => {
+  var game = new Game(config);
+};

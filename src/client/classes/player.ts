@@ -18,9 +18,9 @@ export class Knight {
         //super(params.scene, params.x, params.y, params.key, params.frame);
         this.scene = params.scene;
         
-        this.player = this.scene.physics.add.sprite(params.x, params.y, params.key)
+        this.player = this.scene.impact.add.sprite(params.x, params.y, params.key)
         
-        this.border = this.scene.physics.add.sprite( params.x, params.y - 10, 'border')
+        //this.border = this.scene.impact.add.sprite( params.x, params.y - 10, 'border')
         
 
         //this.player = new Phaser.GameObjects.Sprite(params.scene, params.x, params.y, params.key);
@@ -41,7 +41,7 @@ export class Knight {
         // this.border = new Phaser.GameObjects.Sprite(params.scene, params.x, params.y - 10, 'border');
         // this.border.setDisplaySize(25,2.7)
         
-        this.border.setVisible(false)
+        //this.border.setVisible(false)
         
         // params.scene.add.existing(this.player);
         // params.scene.add.existing(this.border);

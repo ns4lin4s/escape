@@ -8,11 +8,15 @@ import { BlendModes } from "phaser";
 export class GameScene extends Phaser.Scene {
 
     private collision_layer = null
-    private knight = null
+    private player:Phaser.Physics.Impact.ImpactSprite = null
+    private healthBar :Phaser.Physics.Impact.ImpactSprite = null
+    private healthRedBar :Phaser.Physics.Impact.ImpactSprite = null
     private shadowTexture:Phaser.GameObjects.Graphics;
     private LIGHT_RADIUS = null
     private sombra = null
     private pointer_moved = false
+    private cursors = null
+    private spotlight = null
     
     constructor() {
         super({
@@ -21,61 +25,95 @@ export class GameScene extends Phaser.Scene {
     }
 
     preload(): void {
-        this.load.image("tiles", "../assets/dungeoncombat/map.png");
+        this.load.image("tiles", "../assets/dungeoncombat/catastrophi_tiles_16.png");
         this.load.image('bar', '../assets/dungeoncombat/preloader-bar.png');
         this.load.image('redbar', '../assets/dungeoncombat/preloader-bar2.png');
         this.load.image('border', '../assets/dungeoncombat/border.png');
+        this.load.image('mask', '../assets/dungeoncombat/mask1.png');
+
         //this.load.image('border-short', '../assets/dungeoncombat/border-short.png');
-        this.load.tilemapTiledJSON("dungeon_tilemap", "../assets/dungeoncombat/dungeon01.json");
+        this.load.tilemapTiledJSON("catastrophi_tiles_16", "../assets/dungeoncombat/dungeon01.json");
         
-        this.load.spritesheet('knight1', '../assets/dungeoncombat/pistolero.png',{
-            frameWidth: 64,
-            frameHeight: 64
+        this.load.spritesheet('knight1', '../assets/dungeoncombat/pistolero_32x32.png',{
+            frameWidth: 32,
+            frameHeight: 32
         })
+
+        
         
     }
 
     create(): void {
-        //this.cameras.main.setBackgroundColor('#2d2d2d')
-        //let bgBitMap = this.add.   bitmapData(this.game.width, this.game.height);
-        // bgBitMap : String = null
-        // this.game.textures.setTexture()
-        // bgBitMap.ctx.rect(0, 0, this.game.config.width, this.game.config.height);
-        // bgBitMap.ctx.fillStyle = '#b2ddc8';
-        // bgBitMap.ctx.fill();
+       
+        // let health = this.impact.add.sprite(16, 16, 'bar');
+        // health.setScale(4);
+        // health.setDepth(12)
+        // this.healthBar.setOrigin(0,0.5)
+        // this.healthBar.setScale(1,4)
+        // this.healthBar.setDepth(12)
 
-        // this.add.sprite(0, 0, bgBitMap);
-        // var gl = this.sys.game.renderer.gl;
+        this.input.setDefaultCursor('url(../assets/dungeoncombat/SC2-target-none.cur), pointer');
 
-        // var renderer = this.sys.game.renderer;
-        // renderer.setBlendMode([[ gl.ZERO, gl.SRC_COLOR ], gl.FUNC_ADD])
+        var map = this.make.tilemap({ key: 'catastrophi_tiles_16', tileWidth: 16, tileHeight: 16 });
         
-        // var modeIndex = renderer.addBlendMode([ gl.ZERO, gl.SRC_COLOR ], gl.FUNC_ADD);
+        var tileset = map.addTilesetImage("catastrophi_tiles_16", "tiles");
+        
+        map.createStaticLayer("background", tileset, 0, 0)
 
+        var collision_layer = map.createStaticLayer("collision", tileset, 0, 0) 
         
-        var map = this.make.tilemap({ key: 'dungeon_tilemap', tileWidth: 16, tileHeight: 16 });
-        //var map = this.add.tilemap('dungeon_tilemap',16,16)
-        
-        //this.game.stage.backgroundColor = 0x4488cc;
-        // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
-        // Phaser's cache (i.e. the name you used in preload)
-        
-
-        var tileset = map.addTilesetImage("dungeon_tilemap", "tiles");
-        debugger
-        map.createStaticLayer("background", tileset, 0, 0) 
-        var collision_layer = map.createDynamicLayer("collision", tileset, 0, 0) 
-        //this.collision_layer.setCollisionByProperty({ collides: true },true)
         collision_layer.setCollisionByProperty({ collides: true },true);
-        collision_layer.setCollisionBetween(163, 190);
+        
+        collision_layer.setCollisionBetween(1152, 1223);
 
-        this.knight = new Knight({
-            scene: this,
-            x: 64,
-            y: 64,
-            key: "knight1"
+        this.impact.world.setCollisionMapFromTilemapLayer(collision_layer, { defaultCollidingSlope: 1 });
+
+        //player instance  
+        this.findObjectByTypes('player','asset',map,'objectsLayer').forEach(function(element){
+            
+            this.player = this.impact.add.sprite(element.x, element.y, 'knight1')
+            
+            this.healthRedBar =this.impact.add.sprite(element.x - 20, element.y + 26, 'redbar');
+            this.healthRedBar.setOrigin(0,0.5)
+            this.healthRedBar.setScale(5,4)
+
+            this.healthBar =this.impact.add.sprite(element.x - 20, element.y + 26, 'bar');
+            this.healthBar.setOrigin(0,0.5)
+            this.healthBar.setScale(4);
+            //this.healthBar.displayHeight = 5
+            // this.healthBar.setDepth(10)
+
+            
+            //this.healthRedBar.displayHeight = 5
+            
+            // let elementObj = new Item({
+            //     scene: this,
+            //     x: element.x,
+            //     y: element.y,
+            //     key: element.properties.asset
+            // });
+        }, this);
+        
+        
+        this.anims.create({
+            key: 'down',
+            frames: this.anims.generateFrameNumbers('knight1', { start: 1, end: 2 }),
+            frameRate: 10,
+            repeat: -1
         });
 
+        this.cursors = this.input.keyboard.createCursorKeys();
+        
+        this.spotlight = this.make.sprite({
+            x: 250,
+            y: 200,
+            key: 'mask',
+            add: false
+        });
+    
+        // pic.mask = 
+        this.cameras.main.setMask(new Phaser.Display.Masks.BitmapMask(this, this.spotlight))
+        
         // var player = this.physics.add.sprite(64, 64, "knight1")
 
         
@@ -84,156 +122,61 @@ export class GameScene extends Phaser.Scene {
         // this.physics.add.existing(this.knight.player);
         // this.physics.add.existing(this.knight.border);
         
-        this.physics.add.collider(this.knight.player,collision_layer,()=>{
-            console.log("overlap")
-        })
-        
-
-        ////let belowLayer = map.createStaticLayer("Below Player", tileset, 0, 0)//.setBlendMode(Phaser.BlendModes.ADD);
-        
-        
-        // belowLayer.setBlendMode(Phaser.BlendModes.SCREEN)
-        //let shadowLayer = map.createStaticLayer("Shadow", tileset, 0, 0)
-        //shadowLayer.setAlpha(1,1,1,1,1)
-        //shadowLayer.setBlendMode(Phaser.BlendModes.MULTIPLY)
-        ////this.worldLayer = map.createStaticLayer("World", tileset, 0, 0)//.setBlendMode(Phaser.BlendModes.ADD);
-        
-        // // this.worldLayer.setCollisionByProperty({ collides: true },true);
-        // // this.worldLayer.setDepth(10);
-        // map.setCollisionBetween(0, 39);
-        //this.worldLayer.setBlendMode(Phaser.BlendModes.MULTIPLY)
-        
-        
-        // // let aboveLayer = map.createStaticLayer("Above Player", tileset, 0, 0)//.setBlendMode(Phaser.BlendModes.ADD);
-        //aboveLayer.setDepth(10);
-        // this.worldLayer.setAlpha(0.7)
-        // this.worldLayer.setBlendMode(Phaser.BlendModes.MULTIPLY)
-
-        // // // Create the shadow texture
-        // // this.sombra = this.textures.createCanvas('sombra',this.cameras.main.width,this.cameras.main.height)
-        
-        // // this.sombra.refresh()
-        // // // Create an object that will use the bitmap as a texture
-        // // var lightSprite = this.add.image(0, 0, 'sombra');
-
-        // // // Set the blend mode to MULTIPLY. This will darken the colors of
-        // // // everything below this sprite.
-        // // lightSprite.setBlendMode(BlendModes.MULTIPLY)
-        
-        
-        // // this.flashlight()
-
-
-/** 
-
-        this.shadowTexture = this.make.graphics({x: 0, y: 0, add: false});
-        this.shadowTexture.fillStyle(0x646464,1);
-        this.shadowTexture.fillRect(0, 0, this.cameras.main.width,this.cameras.main.height);
-        this.shadowTexture.beginPath();
-        this.shadowTexture.fillStyle(0xFFFFFF,1);
-        this.shadowTexture.fillCircle((this.cameras.main.width / 2) + 100, this.cameras.main.height / 2, 35);
-        
-        this.shadowTexture.generateTexture('graphic3', this.cameras.main.width,this.cameras.main.height);
-        
-        // Create an object that will use the bitmap as a texture
-        let light = this.add.image(64,64,'graphic3')
-
-        // Set the blend mode to MULTIPLY. This will darken the colors of
-        // everything below this sprite.
-        light.setBlendMode(BlendModes.MULTIPLY)*****/
-
-        // Simulate a pointer click/tap input at the center of the stage
-        // when the example begins running.
-
-        
-
-        // this.input.activePointer.x = this.cameras.main.width/2 ;
-        // this.input.activePointer.y = this.cameras.main.height/2 ;
-
-        /*shadowTexture.fillStyle(0x646464,1);
-        shadowTexture.fillRect(0, 0, this.cameras.main.width,this.cameras.main.height);
-        
-        
-        shadowTexture.beginPath();
-        shadowTexture.fillStyle(0xFFFFFF,1);
-        shadowTexture.fillCircle((this.cameras.main.width / 2) + 100, this.cameras.main.height / 2, 35);
-        
-        shadowTexture.generateTexture('graphic3', this.cameras.main.width,this.cameras.main.height);
-        
-        this.shadowTexture = {
-            xCircle: shadowTexture.x,
-            yCircle: shadowTexture.y,
-            image: null
-        }*/
-
+        // this.physics.add.collider(this.knight.player,collision_layer,()=>{
+        //     console.log("overlap")
+        // })
         
 
 
-        //this.add.image(0,0,'graphic2').setBlendMode(BlendModes.MULTIPLY)
-
-        //this.add.sprite(0,0,'graphic2');
-
-        //let graphic2 =this.make.graphics({x: 0, y: 0, add: false});
+        // // Create the shadow texture
+        // this.sombra = this.textures.createCanvas('sombra',this.cameras.main.width,this.cameras.main.height)
         
-        /* circulo */
-        // // var graphics = this.add.graphics();
+        // this.sombra.refresh()
+        // // Create an object that will use the bitmap as a texture
+        // var lightSprite = this.add.image(0, 0, 'sombra');
 
-        // // var color = 0xFFFFFF;
-        // // var alpha = 0.1;
-
-        // // graphics.fillStyle(color, alpha);
-
-        // // graphics.fillCircle(50, 50, 70)//.setBlendMode(BlendModes.MULTIPLY)
-
-        //this.add.image(0,0,'graphic2').setBlendMode(BlendModes.MULTIPLY)
+        // // Set the blend mode to MULTIPLY. This will darken the colors of
+        // // everything below this sprite.
+        // lightSprite.setBlendMode(BlendModes.MULTIPLY)
         
-
-        //this.add.image(128, 64, 'tiles').setBlendMode(Phaser.BlendModes.MULTIPLY);
         
-        // belowLayer.setBlendMode(Phaser.BlendModes.EXCLUSION)
-        // this.worldLayer.setBlendMode(Phaser.BlendModes.EXCLUSION)
-        // aboveLayer.setBlendMode(Phaser.BlendModes.EXCLUSION)
+        // this.flashlight()
 
-
-        
-
-        // // map.setCollisionBetween(0, 99);
-        // // this.physics.add.collider(this.knight.border, this.worldLayer);
-
-        const debugGraphics = this.add.graphics()//.setAlpha(0.66);
-        collision_layer.renderDebug(debugGraphics, {
-            tileColor: null, // Non-colliding tiles
-            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 200), // Colliding tiles
-            faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Colliding face edges
-        });
-
-        // let self = this
-        // this.physics.add.collider(this.knight.border, this.worldLayer, () => {
-        //     self.knight.body.velocity.x = 0
-        //     self.knight.body.velocity.y = 0
-        //     self.knight.border.body.velocity.x = 0
-        //     self.knight.border.body.velocity.y = 0
-        //     self.knight.body.moves = false;
-        //     self.knight.border.body.moves = false;
+        // const debugGraphics = this.add.graphics()//.setAlpha(0.66);
+        // collision_layer.renderDebug(debugGraphics, {
+        //     tileColor: null, // Non-colliding tiles
+        //     collidingTileColor: new Phaser.Display.Color(243, 134, 48, 200), // Colliding tiles
+        //     faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Colliding face edges
         // });
 
+        var help = this.add.text(16, 16, 'Arrow keys to move.', {
+            fontSize: '18px',
+            fill: '#ffffff'
+        });
+        help.setScrollFactor(0);
+
         
-        // this.input.on('pointermove', function (pointer)
-        // {
-        //     this.flashlight()
+        
+        this.input.on('pointermove', function (pointer)
+        {
+            this.spotlight.x = pointer.x;
             
-        //     let angle = Phaser.Math.Angle.Between(this.knight.player.x, this.knight.player.y,pointer.x + this.cameras.main.scrollX, pointer.y + this.cameras.main.scrollY)
+            this.spotlight.y = pointer.y;
+
+            let angle = Phaser.Math.Angle.Between(this.player.x, this.player.y,pointer.x + this.cameras.main.scrollX, pointer.y + this.cameras.main.scrollY)
             
-        //     this.knight.player.rotation = angle
+            this.player.rotation = angle
         
-        // }, this);    
+        }, this);    
         
+        
+
         this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-        this.cameras.main.startFollow(this.knight.player);
+        this.cameras.main.startFollow(this.player);
         
     }
 
-    findObjectByTypes(targetType, tilemap, layer): any {
+    findObjectByTypes(targetType, nameType, tilemap, layer): any {
 
         let result = []
         
@@ -244,8 +187,13 @@ export class GameScene extends Phaser.Scene {
         if(arrayObjects.name === layer)
         {
             arrayObjects.objects.forEach(function(element){
-                if(element.properties.type == targetType)
-                    result.push(element);
+                element.properties.forEach(function(property){
+                    if(property.value == targetType && property.name == nameType)
+                    {
+                        result.push(element);
+                    }
+                })
+                
             }, this);
         }
         
@@ -275,9 +223,104 @@ export class GameScene extends Phaser.Scene {
     }
 
 
-    update(): void {
+    update(time,delta): void {
         
-        this.knight.update();
+        this.player.setVelocity(0);
+        // this.healthBar.setVelocity(0);
+        // this.healthRedBar.setVelocity(0);
+        
+        if (this.cursors.up.isDown)
+        {
+            this.player.setVelocityX((Math.cos(this.player.rotation) * 100)) 
+            this.player.setVelocityY((Math.sin(this.player.rotation) * 100))
+            // this.border.x = this.player.x
+            // this.border.y = this.player.y
+            this.healthBar.x = this.player.x - 20
+            this.healthBar.y = this.player.y + 26
+
+            this.healthRedBar.x = this.player.x - 20
+            this.healthRedBar.y = this.player.y + 26
+            
+        }
+        else if (this.cursors.down.isDown)
+        {
+            
+            this.player.setVelocityX((Math.cos(this.player.rotation) * -100)) 
+            this.player.setVelocityY((Math.sin(this.player.rotation) * -100) )
+            this.healthBar.x = this.player.x - 20
+            this.healthBar.y = this.player.y + 26
+
+            this.healthRedBar.x = this.player.x - 20
+            this.healthRedBar.y = this.player.y + 26
+            // this.border.x = this.player.x
+            // this.border.y = this.player.y
+
+        }
+        
+
+        if (this.cursors.left.isDown)
+        {
+            this.player.setAngle(this.player.angle - 5)
+            //this.border.setAngle(this.player.angle - 5)
+            
+        }
+        else if (this.cursors.right.isDown)
+        {
+            this.player.setAngle(this.player.angle + 5)
+
+            //this.border.setAngle(this.player.angle + 5)
+            
+        }
+        
+        this.healthBar.x = this.player.x - 20
+        this.healthBar.y = this.player.y + 26
+
+        this.healthRedBar.x = this.player.x - 20
+        this.healthRedBar.y = this.player.y + 26
+        
+        //this.player.update()
+
+        // // Horizontal movement
+        // if (this.cursors.left.isDown)
+        // {
+        //     this.player.setVelocityX(-100);
+        // }
+        // else if (this.cursors.right.isDown)
+        // {
+        //     this.player.setVelocityX(100);
+        // }
+
+        // // Vertical movement
+        // if (this.cursors.up.isDown)
+        // {
+        //     this.player.setVelocityY(-100);
+        // }
+        // else if (this.cursors.down.isDown)
+        // {
+        //     this.player.setVelocityY(100);
+        // }
+
+        // // Update the animation last and give left/right animations precedence over up/down animations
+        // if (this.cursors.left.isDown)
+        // {
+        //     this.player.anims.play('left', true);
+        // }
+        // else if (this.cursors.right.isDown)
+        // {
+        //     this.player.anims.play('right', true);
+        // }
+        // else if (this.cursors.up.isDown)
+        // {
+        //     this.player.anims.play('up', true);
+        // }
+        // else if (this.cursors.down.isDown)
+        // {
+        //     this.player.anims.play('down', true);
+        // }
+        // else
+        // {
+        //     this.player.anims.stop();
+        // }
 
     }
 }
