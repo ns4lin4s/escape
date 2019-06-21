@@ -1,4 +1,4 @@
-# Juego de supervivencia
+# Escape
 Éste videojuego consta de matar a las criaturas y resolver acertijos para poder escapar del planeta.
 
 ## app composition
@@ -13,5 +13,9 @@ $ npm install
 $ npm run dev
 $ open http://localhost:3000
 ```
+
+## Demo
+
+![Demo](https://github.com/ns4lin4s/escape/blob/master/demo1.gif)
 
 
