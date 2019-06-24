@@ -4,7 +4,7 @@
   "description": "survival game",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ns4lin4s/dungeoncombat.git"
+    "url": "git+https://github.com/ns4lin4s/escape.git"
   },
   "keywords": [
     "phaser3",

@@ -30,7 +30,7 @@ export class GameScene extends Phaser.Scene {
         this.load.image('redbar', '../assets/dungeoncombat/preloader-bar2.png');
         this.load.image('border', '../assets/dungeoncombat/border.png');
         this.load.image('mask', '../assets/dungeoncombat/mask1.png');
-
+        
         //this.load.image('border-short', '../assets/dungeoncombat/border-short.png');
         this.load.tilemapTiledJSON("catastrophi_tiles_16", "../assets/dungeoncombat/dungeon01.json");
         
@@ -39,6 +39,9 @@ export class GameScene extends Phaser.Scene {
             frameHeight: 32
         })
 
+        this.load.audio('hell', 
+            'assets/dungeoncombat/hell.wav'
+        );
         
         
     }
@@ -51,6 +54,15 @@ export class GameScene extends Phaser.Scene {
         // this.healthBar.setOrigin(0,0.5)
         // this.healthBar.setScale(1,4)
         // this.healthBar.setDepth(12)
+        let audio = this.sound.add('hell', { loop: true });
+        audio.play()
+        // audio.addMarker({ name: 'soundscape', start: 20, duration: 18.8, config: {} });
+
+        setTimeout(()=>{
+            audio.play('soundscape')
+        },2000)
+        
+        
 
         this.input.setDefaultCursor('url(../assets/dungeoncombat/SC2-target-none.cur), pointer');
 
