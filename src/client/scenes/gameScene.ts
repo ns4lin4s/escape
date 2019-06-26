@@ -17,6 +17,7 @@ export class GameScene extends Phaser.Scene {
     private pointer_moved = false
     private cursors = null
     private spotlight = null
+    private fire = false
     
     constructor() {
         super({
@@ -34,9 +35,9 @@ export class GameScene extends Phaser.Scene {
         //this.load.image('border-short', '../assets/dungeoncombat/border-short.png');
         this.load.tilemapTiledJSON("catastrophi_tiles_16", "../assets/dungeoncombat/dungeon01.json");
         
-        this.load.spritesheet('knight1', '../assets/dungeoncombat/pistolero_32x32.png',{
-            frameWidth: 32,
-            frameHeight: 32
+        this.load.spritesheet('knight1', '../assets/dungeoncombat/space_man_walk.png',{
+            frameWidth: 16,
+            frameHeight: 16
         })
 
         this.load.audio('hell', 
@@ -84,7 +85,10 @@ export class GameScene extends Phaser.Scene {
         this.findObjectByTypes('player','asset',map,'objectsLayer').forEach(function(element){
             
             this.player = this.impact.add.sprite(element.x, element.y, 'knight1')
-            
+            // this.player.setOrigin(0,0.5)
+            // this.player.setScale(2,2)
+
+
             this.healthRedBar =this.impact.add.sprite(element.x - 20, element.y + 26, 'redbar');
             this.healthRedBar.setOrigin(0,0.5)
             this.healthRedBar.setScale(5,4)
@@ -109,8 +113,15 @@ export class GameScene extends Phaser.Scene {
         
         this.anims.create({
             key: 'down',
-            frames: this.anims.generateFrameNumbers('knight1', { start: 1, end: 2 }),
-            frameRate: 10,
+            frames: this.anims.generateFrameNumbers('knight1', { start: 0, end: 3 }),
+            frameRate: 9,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'fire',
+            frames: this.anims.generateFrameNumbers('knight1', { start: 4, end: 6 }),
+            frameRate: 9,
             repeat: -1
         });
 
@@ -166,8 +177,18 @@ export class GameScene extends Phaser.Scene {
             fill: '#ffffff'
         });
         help.setScrollFactor(0);
+        let self = this
+        this.input.on('pointerdown', function(pointer){
+            self.player.anims.play('fire', true);
+            self.fire = true
+            
+         });
 
-        
+         this.input.on('pointerup', function(pointer){
+            
+            self.player.anims.stop();
+            self.fire = false
+         });
         
         this.input.on('pointermove', function (pointer)
         {
@@ -313,25 +334,33 @@ export class GameScene extends Phaser.Scene {
         // }
 
         // // Update the animation last and give left/right animations precedence over up/down animations
-        // if (this.cursors.left.isDown)
+        if (this.cursors.up.isDown)
+        {
+            this.player.anims.play('down', true);
+            
+        }
+        else if (this.cursors.down.isDown)
+        {
+            this.player.anims.play('down', true);
+            
+        }
+        else if(this.fire == false)
+        {
+            this.player.anims.stop();
+        }
+
+        // if (this.cursors.up.isUp)
         // {
-        //     this.player.anims.play('left', true);
+            
         // }
-        // else if (this.cursors.right.isDown)
-        // {
-        //     this.player.anims.play('right', true);
-        // }
-        // else if (this.cursors.up.isDown)
-        // {
-        //     this.player.anims.play('up', true);
-        // }
-        // else if (this.cursors.down.isDown)
-        // {
-        //     this.player.anims.play('down', true);
-        // }
-        // else
+        // else if (this.cursors.down.isUp)
         // {
         //     this.player.anims.stop();
+        // }
+
+        // else
+        // {
+        //     //this.player.anims.stop();
         // }
 
     }
