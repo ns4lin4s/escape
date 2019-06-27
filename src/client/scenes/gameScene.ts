@@ -35,9 +35,9 @@ export class GameScene extends Phaser.Scene {
         //this.load.image('border-short', '../assets/dungeoncombat/border-short.png');
         this.load.tilemapTiledJSON("catastrophi_tiles_16", "../assets/dungeoncombat/dungeon01.json");
         
-        this.load.spritesheet('knight1', '../assets/dungeoncombat/space_man_walk.png',{
-            frameWidth: 16,
-            frameHeight: 16
+        this.load.spritesheet('knight1', '../assets/dungeoncombat/space_man_top_down_walk.png',{
+            frameWidth: 24,
+            frameHeight: 24
         })
 
         this.load.audio('hell', 
@@ -112,18 +112,32 @@ export class GameScene extends Phaser.Scene {
         
         
         this.anims.create({
-            key: 'down',
-            frames: this.anims.generateFrameNumbers('knight1', { start: 0, end: 3 }),
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('knight1', { start: 0, end:0 }),
             frameRate: 9,
             repeat: -1
         });
 
         this.anims.create({
-            key: 'fire',
-            frames: this.anims.generateFrameNumbers('knight1', { start: 4, end: 6 }),
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('knight1', { start: 2, end:2 }),
             frameRate: 9,
             repeat: -1
         });
+
+        // this.anims.create({
+        //     key: 'down',
+        //     frames: this.anims.generateFrameNumbers('knight1', { start: 0, end: 1 }),
+        //     frameRate: 9,
+        //     repeat: -1
+        // });
+
+        // this.anims.create({
+        //     key: 'top',
+        //     frames: this.anims.generateFrameNumbers('knight1', { start: 2, end: 3 }),
+        //     frameRate: 9,
+        //     repeat: -1
+        // });
 
         this.cursors = this.input.keyboard.createCursorKeys();
         
@@ -179,7 +193,7 @@ export class GameScene extends Phaser.Scene {
         help.setScrollFactor(0);
         let self = this
         this.input.on('pointerdown', function(pointer){
-            self.player.anims.play('fire', true);
+            // self.player.anims.play('fire', true);
             self.fire = true
             
          });
@@ -197,8 +211,12 @@ export class GameScene extends Phaser.Scene {
             this.spotlight.y = pointer.y;
 
             let angle = Phaser.Math.Angle.Between(this.player.x, this.player.y,pointer.x + this.cameras.main.scrollX, pointer.y + this.cameras.main.scrollY)
-            
-            this.player.rotation = angle
+            console.log(angle)
+            if(Math.abs(angle)  > 1.5)
+                this.player.anims.play('left', true);
+            else
+                this.player.anims.play('right', true);
+            //this.player.rotation = angle
         
         }, this);    
         
@@ -264,10 +282,10 @@ export class GameScene extends Phaser.Scene {
         
         if (this.cursors.up.isDown)
         {
-            this.player.setVelocityX((Math.cos(this.player.rotation) * 100)) 
-            this.player.setVelocityY((Math.sin(this.player.rotation) * 100))
-            // this.border.x = this.player.x
-            // this.border.y = this.player.y
+            // this.player.setVelocityX((Math.cos(this.player.rotation) * 100)) 
+            // this.player.setVelocityY((Math.sin(this.player.rotation) * 100))
+            this.player.setVelocityY(-60)
+
             this.healthBar.x = this.player.x - 20
             this.healthBar.y = this.player.y + 26
 
@@ -277,31 +295,32 @@ export class GameScene extends Phaser.Scene {
         }
         else if (this.cursors.down.isDown)
         {
-            
-            this.player.setVelocityX((Math.cos(this.player.rotation) * -100)) 
-            this.player.setVelocityY((Math.sin(this.player.rotation) * -100) )
+            this.player.setVelocityY(+60)
+            // this.player.setVelocityX((Math.cos(this.player.rotation) * -100)) 
+            // this.player.setVelocityY((Math.sin(this.player.rotation) * -100) )
             this.healthBar.x = this.player.x - 20
             this.healthBar.y = this.player.y + 26
 
             this.healthRedBar.x = this.player.x - 20
             this.healthRedBar.y = this.player.y + 26
-            // this.border.x = this.player.x
-            // this.border.y = this.player.y
+            
 
         }
         
 
         if (this.cursors.left.isDown)
         {
-            this.player.setAngle(this.player.angle - 5)
-            //this.border.setAngle(this.player.angle - 5)
+            //this.player.setAngle(this.player.angle - 5)
+            this.player.setVelocityX(-60)
+            this.player.anims.play('left', true);
             
         }
         else if (this.cursors.right.isDown)
         {
-            this.player.setAngle(this.player.angle + 5)
-
-            //this.border.setAngle(this.player.angle + 5)
+            //this.player.setAngle(this.player.angle + 5)
+            this.player.setVelocityX(+60)
+            this.player.anims.play('right', true);
+            
             
         }
         
@@ -336,12 +355,12 @@ export class GameScene extends Phaser.Scene {
         // // Update the animation last and give left/right animations precedence over up/down animations
         if (this.cursors.up.isDown)
         {
-            this.player.anims.play('down', true);
+            // this.player.anims.play('top', true);
             
         }
         else if (this.cursors.down.isDown)
         {
-            this.player.anims.play('down', true);
+            // this.player.anims.play('down', true);
             
         }
         else if(this.fire == false)

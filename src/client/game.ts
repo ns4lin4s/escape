@@ -8,7 +8,7 @@ import { GameScene } from "./scenes/gameScene";
 const config = {
   width: 500,
   height: 400,
-  zoom: 1.3,
+  zoom: 1.5,
   backgroundColor: '#2d2d2d',
   parent: 'phaser-example',
   pixelArt: true,
